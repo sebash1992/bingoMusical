@@ -165,10 +165,8 @@ export default function PlayerGame() {
 
   return (
     <div className="player-game">
-      {/* Hidden YouTube player */}
-      {activeSong && (
-        <YouTubePlayer key={activeSong.youtubeId} ref={playerRef} videoId={activeSong.youtubeId} startSeconds={activeSong.startSeconds} hidden={true} />
-      )}
+      {/* Hidden YouTube player — always mounted to avoid DOM crash */}
+      <YouTubePlayer ref={playerRef} videoId={activeSong?.youtubeId || ''} startSeconds={activeSong?.startSeconds || 0} hidden={true} />
 
       {/* Bingo result overlay */}
       {bingoResult && (

@@ -215,12 +215,10 @@ export default function AdminGame() {
             </div>
           ) : (
             <>
-              {/* YouTube player */}
-              {displaySong && (
-                <div className="card player-wrap">
-                  <YouTubePlayer key={displaySong.youtubeId} ref={playerRef} videoId={displaySong.youtubeId} startSeconds={displaySong.startSeconds} hidden={false} />
-                </div>
-              )}
+              {/* YouTube player — always mounted once game starts to avoid DOM crash */}
+              <div className="card player-wrap" style={displaySong ? {} : { display: 'none' }}>
+                <YouTubePlayer ref={playerRef} videoId={displaySong?.youtubeId || ''} startSeconds={displaySong?.startSeconds || 0} hidden={false} />
+              </div>
 
               {/* Current song info */}
               <div className="card current-song-info">
