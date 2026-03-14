@@ -1,0 +1,148 @@
+.admin-game {
+  min-height: 100vh;
+  padding: 20px;
+  position: relative;
+}
+
+.notif {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 14px;
+  z-index: 200;
+  max-width: 320px;
+}
+.notif-success { background: var(--success); color: #000; }
+.notif-danger { background: var(--danger); color: #fff; }
+.notif-info { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+
+/* Bingo modal */
+.bingo-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+.bingo-modal {
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  padding: 36px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+}
+.bingo-modal-title {
+  font-family: 'Abril Fatface', serif;
+  font-size: 56px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.bingo-modal-name {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.bingo-modal-sub {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+.bingo-modal-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bingo-modal-btns button { width: 100%; padding: 14px; font-size: 15px; }
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.admin-left, .admin-right { display: flex; flex-direction: column; gap: 16px; }
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.room-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+.room-code { font-family: 'Abril Fatface', serif; font-size: 40px; color: var(--accent); line-height: 1; letter-spacing: 0.05em; }
+
+.start-panel { text-align: center; padding: 36px; }
+.start-panel h2 { font-size: 36px; margin-bottom: 12px; color: var(--accent); }
+.start-panel p { color: var(--text-muted); font-size: 14px; margin-bottom: 8px; }
+.players-waiting { font-size: 18px !important; color: var(--text) !important; font-weight: 700; margin-bottom: 24px !important; }
+.start-btn { width: 100%; padding: 18px; font-size: 16px; }
+
+.player-wrap { padding: 0; overflow: hidden; }
+
+.current-song-info { text-align: center; }
+.song-counter { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.song-counter span { color: var(--accent); font-size: 20px; }
+.current-song-name { font-family: 'Abril Fatface', serif; font-size: 24px; color: var(--text); }
+
+.winners-panel h3 { font-size: 22px; margin-bottom: 12px; }
+.winner-row { padding: 8px 0; font-weight: 600; color: var(--accent2); border-bottom: 1px solid var(--border); font-size: 15px; }
+
+/* Right panel controls */
+.ctrl-label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 10px; }
+.dur-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.dur-btn {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  padding: 6px 12px; font-size: 13px; font-weight: 600; border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+}
+.dur-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+.dur-input { width: 64px !important; padding: 6px 10px !important; font-size: 13px !important; }
+
+.play-ctrl { display: flex; flex-direction: column; gap: 12px; }
+.play-status { display: flex; align-items: center; gap: 8px; }
+.sdot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); }
+.sdot.playing { background: var(--success); box-shadow: 0 0 8px var(--success); animation: blink 1s infinite; }
+.sdot.counting { background: #4d9fff; box-shadow: 0 0 8px #4d9fff; animation: blink 0.5s infinite; }
+.sdot.bingo-claimed { background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: blink 0.4s infinite; }
+.stext { font-size: 13px; font-weight: 600; }
+
+.play-btns { display: flex; gap: 10px; }
+.play-btn { flex: 1; padding: 14px; font-size: 15px; }
+.cnum { font-family: 'Abril Fatface', serif; font-size: 20px; margin-right: 6px; }
+
+.reveal-row { }
+.reveal-btn { width: 100%; padding: 12px; font-size: 13px; }
+
+.next-row { display: flex; align-items: center; gap: 12px; }
+.next-btn { flex: 1; padding: 10px; font-size: 13px; }
+.played-count { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+
+/* Players list */
+.admin-right h3 { font-size: 22px; margin-bottom: 12px; }
+.players-list { display: flex; flex-direction: column; gap: 8px; }
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.player-row.bingo { border-color: var(--accent); background: rgba(255,149,0,0.1); }
+.p-name { flex: 1; font-weight: 600; font-size: 14px; }
+.p-progress { width: 80px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.p-bar { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
+.p-count { font-size: 12px; color: var(--text-muted); min-width: 32px; text-align: right; }
+.p-bingo { font-size: 10px; font-weight: 700; background: var(--accent); color: #000; padding: 2px 6px; border-radius: 2px; text-transform: uppercase; }
+
+@media (max-width: 900px) {
+  .admin-layout { grid-template-columns: 1fr; }
+}

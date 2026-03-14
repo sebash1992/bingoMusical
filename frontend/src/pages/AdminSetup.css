@@ -1,0 +1,39 @@
+.setup { min-height: 100vh; padding: 32px 16px; max-width: 720px; margin: 0 auto; }
+.setup-inner { display: flex; flex-direction: column; gap: 20px; }
+.setup-header { display: flex; align-items: center; gap: 16px; }
+.setup-header h1 { font-size: 48px; color: var(--accent); }
+
+.config-row { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start; }
+
+.size-btns { display: flex; gap: 8px; }
+.size-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
+  border-radius: var(--radius);
+}
+.size-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+.size-btn:hover:not(.active) { border-color: var(--accent); }
+
+.field-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+.min-songs-hint { font-size: 13px; color: var(--text-muted); margin-top: -4px; }
+.min-songs-hint strong { color: var(--accent); }
+
+.songs-section h2 { font-size: 32px; }
+.songs-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.count-ok { color: var(--success); font-size: 18px; }
+.count-warn { color: var(--accent); font-size: 18px; }
+
+.songs-list { display: flex; flex-direction: column; gap: 12px; }
+.song-card { display: flex; gap: 12px; align-items: flex-start; }
+.song-num { font-family: 'Abril Fatface', serif; font-size: 28px; color: var(--accent); min-width: 36px; padding-top: 4px; }
+.song-fields { flex: 1; }
+.song-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; }
+.song-remove { background: none; color: var(--text-muted); font-size: 14px; padding: 4px 8px; }
+.song-remove:hover { color: var(--danger); }
+
+.create-btn { width: 100%; padding: 18px; font-size: 18px; }

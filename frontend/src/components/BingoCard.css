@@ -1,0 +1,81 @@
+.bingo-card {
+  display: grid;
+  grid-template-columns: repeat(var(--size), 1fr);
+  gap: 6px;
+  width: 100%;
+}
+
+.bingo-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 4px;
+  border-radius: var(--radius);
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  color: var(--text);
+  font-size: clamp(9px, 1.8vw, 13px);
+  font-weight: 600;
+  text-align: center;
+  cursor: default;
+  position: relative;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  line-height: 1.2;
+}
+
+.bingo-cell .cell-label {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 1;
+}
+
+.bingo-cell.available {
+  border-color: var(--accent);
+  background: rgba(255, 149, 0, 0.1);
+  cursor: pointer;
+  animation: pulse 2s ease infinite;
+}
+
+.bingo-cell.available:hover {
+  background: rgba(255, 149, 0, 0.25);
+  transform: scale(1.04);
+}
+
+.bingo-cell.marked {
+  background: var(--accent);
+  border-color: var(--accent2);
+  color: #000;
+  cursor: default;
+}
+
+.bingo-cell.marked .cell-label {
+  opacity: 0.7;
+}
+
+.cell-check {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #000;
+  z-index: 2;
+}
+
+.bingo-cell.locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.card-empty {
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+  padding: 32px;
+}

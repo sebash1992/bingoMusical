@@ -1,0 +1,194 @@
+.player-game {
+  min-height: 100vh;
+  padding: 16px;
+  position: relative;
+}
+
+/* Banners */
+.bingo-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  padding: 16px;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 700;
+  z-index: 200;
+}
+.bingo-my-win { background: var(--accent); color: #000; }
+.bingo-rejected { background: var(--danger); color: #fff; }
+.bingo-other { background: var(--surface2); color: var(--text); border-bottom: 2px solid var(--accent); }
+.bingo-other-win { background: var(--accent2); color: #000; }
+
+.revealed-banner {
+  position: fixed;
+  bottom: 20px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  border-radius: 40px;
+  padding: 12px 24px;
+  font-size: 15px;
+  z-index: 150;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(255,149,0,0.3);
+}
+
+/* Countdown overlay */
+.countdown-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 180;
+  pointer-events: none;
+}
+.countdown-num {
+  font-family: 'Abril Fatface', serif;
+  font-size: 140px;
+  color: var(--accent);
+  text-shadow: 0 0 40px rgba(255,149,0,0.6);
+}
+
+.player-layout {
+  max-width: 520px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Header */
+.player-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ph-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+.ph-name { font-family: 'Abril Fatface', serif; font-size: 30px; color: var(--accent); line-height: 1; }
+.ph-right { text-align: right; }
+.ph-code { font-family: 'Abril Fatface', serif; font-size: 24px; letter-spacing: 0.08em; line-height: 1; }
+
+/* Status bar */
+.status-bar {
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.status-bar.status-playing { background: rgba(77,255,145,0.08); border-color: var(--success); color: var(--success); }
+.status-bar.status-bingo-claimed { background: rgba(255,149,0,0.1); border-color: var(--accent); color: var(--accent); animation: blink 0.6s infinite; }
+.status-bar.status-finished { background: rgba(255,204,0,0.1); border-color: var(--accent2); color: var(--accent2); }
+
+/* Winners bar */
+.winners-bar {
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent2);
+  padding: 8px;
+  background: rgba(255,204,0,0.08);
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,204,0,0.2);
+}
+
+/* Progress */
+.progress-row { display: flex; align-items: center; gap: 10px; }
+.progress-bar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.4s ease; }
+.progress-label { font-size: 12px; color: var(--text-muted); white-space: nowrap; font-weight: 600; }
+
+/* Field */
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+.field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+.field-error { color: var(--danger); font-size: 11px; }
+.field input {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  font-size: 13px;
+  width: 100%;
+  outline: none;
+}
+.field input:focus { border-color: var(--accent); }
+.field input::placeholder { color: var(--text-muted); }
+
+/* Waiting / submission area */
+.waiting-area { display: flex; flex-direction: column; gap: 12px; }
+
+.submission-card { display: flex; flex-direction: column; gap: 14px; }
+.submission-title { font-family: 'Abril Fatface', serif; font-size: 22px; color: var(--accent); }
+.submission-sub { color: var(--text-muted); font-size: 13px; margin-top: -8px; }
+
+.my-songs-list { display: flex; flex-direction: column; gap: 16px; }
+.my-song-row {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  position: relative;
+}
+.remove-song-btn {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 2px 6px;
+}
+.remove-song-btn:hover { color: var(--danger); }
+
+.submission-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.submission-actions button { flex: 1; min-width: 100px; padding: 12px; }
+.skip-btn { flex: 0 !important; padding: 12px 16px !important; }
+
+.waiting-card { text-align: center; padding: 48px 24px; }
+.waiting-icon { font-size: 48px; margin-bottom: 16px; }
+.waiting-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 8px; }
+.pool-count { font-size: 13px !important; color: var(--accent) !important; font-weight: 700; }
+
+/* BINGO button */
+.bingo-btn-area {
+  padding: 8px 0 24px;
+}
+.bingo-claim-btn {
+  width: 100%;
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border: 3px solid var(--border);
+  background: var(--surface);
+  transition: all 0.2s ease;
+}
+.bingo-claim-btn.ready {
+  background: var(--accent);
+  border-color: var(--accent2);
+  animation: pulse 1.5s ease infinite;
+  cursor: pointer;
+}
+.bingo-claim-btn.ready:hover { background: var(--accent2); transform: scale(1.02); }
+.bingo-claim-btn.disabled { opacity: 0.35; cursor: not-allowed; }
+
+.bingo-btn-text {
+  font-family: 'Abril Fatface', serif;
+  font-size: 42px;
+  color: #000;
+  line-height: 1;
+}
+.bingo-claim-btn.disabled .bingo-btn-text { color: var(--text-muted); }
+.bingo-btn-hint { font-size: 12px; color: rgba(0,0,0,0.6); }
+.bingo-claim-btn.disabled .bingo-btn-hint { color: var(--text-muted); }

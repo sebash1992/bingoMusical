@@ -1,0 +1,14 @@
+.join {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.join-inner { width: 100%; max-width: 400px; }
+.join-logo { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 32px; }
+.join-note { font-size: 48px; color: var(--accent); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.join-logo h1 { font-size: 52px; line-height: 0.9; color: var(--text); }
+.join-card h2 { font-size: 28px; margin-bottom: 20px; }
+.join-btn { width: 100%; padding: 16px; font-size: 16px; }
