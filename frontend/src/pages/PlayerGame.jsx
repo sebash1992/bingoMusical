@@ -22,9 +22,10 @@ export default function PlayerGame() {
   const [gameStarted, setGameStarted] = useState(location.state?.gameState?.gameState?.status !== 'waiting')
   const [revealedSong, setRevealedSong] = useState(null)
   const [totalPoolSongs, setTotalPoolSongs] = useState(null)
-  // Song submission
-  const [mySongs, setMySongs] = useState([{ youtubeUrl: '', label: '' }])
-  const [songsSent, setSongsSent] = useState(false)
+  // Song submission — single form, auto-reset
+  const EMPTY_FORM = { label: '', youtubeUrl: '', startSeconds: 0 }
+  const [currentSongForm, setCurrentSongForm] = useState(EMPTY_FORM)
+  const [mySongs, setMySongs] = useState([]) // sent songs, flagged with .sent = true
   const playerRef = useRef(null)
   const countdownRef = useRef(null)
 
@@ -133,6 +134,8 @@ export default function PlayerGame() {
   }, [socket])
 
   const handleMark = (songId) => {
+    // Optimistic update — mark immediately in UI, server will confirm via card-update
+    setCard(prev => prev.map(c => c.songId === songId ? { ...c, marked: !c.marked } : c))
     socket.emit('mark-cell', { roomCode, songId })
   }
 
@@ -145,23 +148,14 @@ export default function PlayerGame() {
     return match ? match[1] : null
   }
 
-  const updateMySong = (i, field, value) => {
-    const updated = [...mySongs]
-    updated[i] = { ...updated[i], [field]: value }
-    setMySongs(updated)
-  }
-
-  const handleSubmitSongs = () => {
-    const valid = mySongs.filter(s => s.label.trim() && s.youtubeUrl.trim() && extractYoutubeId(s.youtubeUrl))
-    if (valid.length === 0) return
-    const processed = valid.map(s => ({
-      label: s.label.trim(),
-      youtubeUrl: s.youtubeUrl.trim(),
-      youtubeId: extractYoutubeId(s.youtubeUrl),
-      startSeconds: Number(s.startSeconds) || 0,
-    }))
-    socket.emit('submit-songs', { roomCode, songs: processed })
-    setSongsSent(true)
+  const handleSubmitOneSong = () => {
+    const { label, youtubeUrl, startSeconds } = currentSongForm
+    const youtubeId = extractYoutubeId(youtubeUrl)
+    if (!label.trim() || !youtubeId) return
+    const song = { label: label.trim(), youtubeUrl: youtubeUrl.trim(), youtubeId, startSeconds: Number(startSeconds) || 0 }
+    socket.emit('submit-songs', { roomCode, songs: [song] })
+    setMySongs(prev => [...prev, { ...song, sent: true }])
+    setCurrentSongForm({ label: '', youtubeUrl: '', startSeconds: 0 }) // reset form
   }
 
   const allMarked = card.length > 0 && card.every(c => c.marked)
@@ -252,53 +246,68 @@ export default function PlayerGame() {
           />
         ) : (
           <div className="waiting-area">
-            {/* Song submission */}
-            {!songsSent ? (
-              <div className="card submission-card">
-                <div className="submission-title">🎵 ¿Querés agregar canciones al pool?</div>
-                <p className="submission-sub">Son opcionales. Van al pool general y pueden salirle a cualquiera.</p>
-                <div className="my-songs-list">
-                  {mySongs.map((s, i) => (
-                    <div key={i} className="my-song-row">
-                      <div className="field">
-                        <label>Nombre *</label>
-                        <input value={s.label} onChange={e => updateMySong(i, 'label', e.target.value)} placeholder="Ej: Wonderwall - Oasis" />
-                      </div>
-                      <div className="field">
-                        <label>Link YouTube *</label>
-                        <input value={s.youtubeUrl} onChange={e => updateMySong(i, 'youtubeUrl', e.target.value)} placeholder="https://youtube.com/watch?v=..." />
-                        {s.youtubeUrl && !extractYoutubeId(s.youtubeUrl) && <span className="field-error">Link inválido</span>}
-                      </div>
-                      <div className="field">
-                        <label>Segundo de inicio</label>
-                        <input type="number" min={0} value={s.startSeconds || 0} onChange={e => updateMySong(i, 'startSeconds', e.target.value)} style={{width: 80}} />
-                      </div>
-                      {mySongs.length > 1 && (
-                        <button className="remove-song-btn" onClick={() => setMySongs(mySongs.filter((_, idx) => idx !== i))}>✕</button>
-                      )}
+            <div className="card submission-card">
+              <div className="submission-title">🎵 Agregá canciones al pool</div>
+              <p className="submission-sub">Opcionales. Van al pool general y le pueden salir a cualquiera.</p>
+
+              {/* List of already-added songs */}
+              {mySongs.filter(s => s.sent).length > 0 && (
+                <div className="added-songs-list">
+                  {mySongs.filter(s => s.sent).map((s, i) => (
+                    <div key={i} className="added-song-row">
+                      <span className="added-song-icon">🎶</span>
+                      <span className="added-song-name">{s.label}</span>
                     </div>
                   ))}
                 </div>
-                <div className="submission-actions">
-                  <button className="btn-secondary" onClick={() => setMySongs([...mySongs, { youtubeUrl: '', label: '', startSeconds: 0 }])}>
-                    + Agregar otra
-                  </button>
-                  <button className="btn-primary" onClick={handleSubmitSongs}
-                    disabled={!mySongs.some(s => s.label.trim() && extractYoutubeId(s.youtubeUrl))}>
-                    Enviar canciones
-                  </button>
-                  <button className="btn-secondary skip-btn" onClick={() => setSongsSent(true)}>
-                    Saltar →
+              )}
+
+              {/* Single song form */}
+              {!gameStarted && (
+                <div className="single-song-form">
+                  <div className="field">
+                    <label>Nombre de la canción *</label>
+                    <input
+                      value={currentSongForm.label}
+                      onChange={e => setCurrentSongForm(f => ({ ...f, label: e.target.value }))}
+                      placeholder="Ej: Bohemian Rhapsody - Queen"
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Link de YouTube *</label>
+                    <input
+                      value={currentSongForm.youtubeUrl}
+                      onChange={e => setCurrentSongForm(f => ({ ...f, youtubeUrl: e.target.value }))}
+                      placeholder="https://youtube.com/watch?v=..."
+                    />
+                    {currentSongForm.youtubeUrl && !extractYoutubeId(currentSongForm.youtubeUrl) && (
+                      <span className="field-error">Link inválido</span>
+                    )}
+                  </div>
+                  <div className="field">
+                    <label>Segundo de inicio (opcional)</label>
+                    <input
+                      type="number" min={0}
+                      value={currentSongForm.startSeconds}
+                      onChange={e => setCurrentSongForm(f => ({ ...f, startSeconds: e.target.value }))}
+                      style={{ width: 90 }}
+                    />
+                  </div>
+                  <button
+                    className="btn-primary submit-one-btn"
+                    onClick={handleSubmitOneSong}
+                    disabled={!currentSongForm.label.trim() || !extractYoutubeId(currentSongForm.youtubeUrl)}
+                  >
+                    + Agregar canción
                   </button>
                 </div>
+              )}
+
+              <div className="waiting-hint">
+                <span>⏳ Esperando que el admin inicie el juego...</span>
+                {totalPoolSongs != null && <span className="pool-count">{totalPoolSongs} en el pool</span>}
               </div>
-            ) : (
-              <div className="card waiting-card">
-                <div className="waiting-icon">🎲</div>
-                <p>Esperando que el admin inicie el juego...</p>
-                {totalPoolSongs && <p className="pool-count">{totalPoolSongs} canciones en el pool</p>}
-              </div>
-            )}
+            </div>
           </div>
         )}
 

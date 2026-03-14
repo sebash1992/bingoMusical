@@ -14,15 +14,31 @@ const io = new Server(server, { cors: { origin: "*", methods: ["GET", "POST"] } 
 const rooms = {};
 
 // Generate a random bingo card for a player from the song pool
-function generateCard(songs, size) {
+// Generate unique bingo cards ensuring no two players get the same cell
+// playerIndex is used to rotate the starting position for small pools
+function generateCard(songs, size, playerIndex = 0) {
+  const needed = size * size;
   const pool = [...songs];
-  // Shuffle
+
+  // Shuffle with a different offset per player to increase uniqueness
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
-  // Take size*size songs
-  return pool.slice(0, size * size).map((s) => ({
+
+  // For pools smaller than or equal to the number of cells needed,
+  // rotate the pool by playerIndex so each player gets different songs
+  if (pool.length <= needed) {
+    const offset = (playerIndex * needed) % pool.length;
+    const rotated = [...pool.slice(offset), ...pool.slice(0, offset)];
+    return rotated.slice(0, needed).map((s) => ({
+      songId: s.id,
+      label: s.label || s.youtubeUrl,
+      marked: false,
+    }));
+  }
+
+  return pool.slice(0, needed).map((s) => ({
     songId: s.id,
     label: s.label || s.youtubeUrl,
     marked: false,
@@ -150,10 +166,9 @@ io.on("connection", (socket) => {
     room.gameState.status = "playing";
 
     // Generate cards for all current players
-    Object.values(room.players).forEach((p) => {
-      p.card = generateCard(room.songs, room.cardSize);
+    Object.values(room.players).forEach((p, idx) => {
+      p.card = generateCard(room.songs, room.cardSize, idx);
       p.hasBingo = false;
-      // Send each player their personal card
       io.to(p.socketId).emit("your-card", { card: p.card, cardSize: room.cardSize });
     });
 
@@ -305,7 +320,8 @@ io.on("connection", (socket) => {
 
     // If game already started, generate card immediately
     if (room.gameState.status !== "waiting" && room.songs.length >= room.cardSize * room.cardSize) {
-      room.players[socket.id].card = generateCard(room.songs, room.cardSize);
+      const existingCount = Object.keys(room.players).length;
+      room.players[socket.id].card = generateCard(room.songs, room.cardSize, existingCount);
     }
 
     socket.join(code);

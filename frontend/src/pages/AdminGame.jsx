@@ -41,7 +41,11 @@ export default function AdminGame() {
 
     socket.emit('admin-rejoin', { adminToken }, ({ room, songs: s, cardSize: cs, error }) => {
       if (error) { navigate('/'); return }
-      setGameState(room?.gameState)
+      // players are at room.players (array), not inside gameState
+      setGameState(prev => ({
+        ...(room?.gameState || {}),
+        players: room?.players ?? []
+      }))
       setSongs(s || [])
       if (cs) setCardSize(cs)
       if (room?.gameState?.clipDuration) setClipDuration(room.gameState.clipDuration)
@@ -49,7 +53,13 @@ export default function AdminGame() {
       if (room?.gameState?.currentSongIndex >= 0) setCurrentSongIndex(room.gameState.currentSongIndex + 1)
     })
 
-    socket.on('state-update', (state) => setGameState(state.gameState))
+    socket.on('state-update', (state) => {
+      // players lives at root of state, not inside gameState
+      setGameState(prev => ({
+        ...state.gameState,
+        players: state.players ?? prev?.players ?? []
+      }))
+    })
     socket.on('player-joined', ({ name }) => notify(`${name} se unió 🎉`, 'success'))
     socket.on('player-left', ({ name }) => notify(`${name} se fue`, 'info'))
     socket.on('player-songs-added', ({ playerName, count, totalSongs }) => {
@@ -143,6 +153,7 @@ export default function AdminGame() {
     setIsPlaying(false)
     playerRef.current?.pauseVideo()
     setCurrentSongIndex(i => i + 1)
+    // Do NOT clear activeSong here — keep showing last video until next prepare-song arrives
   }
 
   const status = gameState?.status || 'waiting'
