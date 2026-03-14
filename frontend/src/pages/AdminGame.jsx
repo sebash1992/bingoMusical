@@ -4,6 +4,41 @@ import { useSocket } from '../context/SocketContext'
 import YouTubePlayer from '../components/YouTubePlayer'
 import './AdminGame.css'
 
+// Inline card viewer for admin — shows a player's card with marked/unplayed/played states
+function PlayerCardViewer({ player, playedSongIds, cardSize }) {
+  const [open, setOpen] = useState(false)
+  const remaining = player.totalCells - player.markedCount
+  return (
+    <div className={`player-row ${player.hasBingo ? 'bingo' : ''}`}>
+      <div className="player-row-header" onClick={() => setOpen(o => !o)} style={{ cursor: 'pointer' }}>
+        <span className="p-name">{player.name}</span>
+        <div className="p-progress">
+          <div className="p-bar" style={{ width: `${(player.markedCount / (player.totalCells || 1)) * 100}%` }} />
+        </div>
+        <span className="p-count">{player.markedCount}/{player.totalCells}</span>
+        {player.hasBingo
+          ? <span className="p-bingo">BINGO</span>
+          : <span className="p-remaining">{remaining} restantes</span>
+        }
+        <span className="p-chevron">{open ? '▲' : '▼'}</span>
+      </div>
+      {open && player.card && (
+        <div className="admin-card-grid" style={{ '--size': cardSize }}>
+          {player.card.map((cell, i) => {
+            const played = playedSongIds.includes(cell.songId)
+            return (
+              <div key={i} className={`admin-cell ${cell.marked ? 'marked' : played ? 'played' : 'locked'}`}>
+                <span className="admin-cell-label">{cell.label}</span>
+                {cell.marked && <span className="admin-cell-check">✓</span>}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function AdminGame() {
   const { roomCode } = useParams()
   const location = useLocation()
@@ -141,11 +176,6 @@ export default function AdminGame() {
 
   const handleStop = () => socket.emit('stop-song', { adminToken })
 
-  const handleReveal = () => {
-    socket.emit('reveal-song', { adminToken })
-    notify('📢 Canción revelada — los jugadores pueden marcarla', 'info')
-  }
-
   const handleNext = () => {
     clearTimeout(timerRef.current)
     clearInterval(countdownRef.current)
@@ -282,11 +312,6 @@ export default function AdminGame() {
                   <button className="btn-secondary play-btn" onClick={handleStop}>⏹ Detener</button>
                 )}
               </div>
-              <div className="reveal-row">
-                <button className="btn-secondary reveal-btn" onClick={handleReveal} disabled={gameState?.currentSongIndex < 0}>
-                  📢 Revelar canción (los jugadores pueden marcarla)
-                </button>
-              </div>
               <div className="next-row">
                 <button className="btn-secondary next-btn" onClick={handleNext}>
                   ⏭ Siguiente canción
@@ -295,19 +320,33 @@ export default function AdminGame() {
               </div>
             </div>
 
-            {/* Players progress */}
+            {/* Song order list */}
+            {(gameState?.orderedSongs?.length > 0) && (
+              <div className="card song-order-panel">
+                <h3>🎵 Orden de canciones</h3>
+                <div className="song-order-list">
+                  {gameState.orderedSongs.map((s, i) => {
+                    const played = gameState.playedSongIds?.includes(s.id)
+                    const isCurrent = i === currentSongIndex
+                    return (
+                      <div key={i} className={`song-order-row ${played ? 'played' : ''} ${isCurrent ? 'current' : ''}`}>
+                        <span className="son-num">{i + 1}</span>
+                        <span className="son-label">{played ? s.label : '???'}</span>
+                        {isCurrent && <span className="son-now">▶</span>}
+                        {played && !isCurrent && <span className="son-done">✓</span>}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Players — progress + expandable card viewer */}
             <div className="card">
               <h3>Jugadores</h3>
               <div className="players-list">
                 {(gameState?.players || []).map((p, i) => (
-                  <div key={i} className={`player-row ${p.hasBingo ? 'bingo' : ''}`}>
-                    <span className="p-name">{p.name}</span>
-                    <div className="p-progress">
-                      <div className="p-bar" style={{ width: `${(p.markedCount / p.totalCells) * 100}%` }} />
-                    </div>
-                    <span className="p-count">{p.markedCount}/{p.totalCells}</span>
-                    {p.hasBingo && <span className="p-bingo">BINGO</span>}
-                  </div>
+                  <PlayerCardViewer key={i} player={p} playedSongIds={gameState?.playedSongIds || []} cardSize={cardSize} />
                 ))}
               </div>
             </div>

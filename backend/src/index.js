@@ -81,6 +81,7 @@ function getPublicState(room) {
     players: Object.values(room.players).map((p) => ({
       id: p.id,
       name: p.name,
+      card: p.card, // full card so admin can view it
       markedCount: p.card.filter((c) => c.marked).length,
       totalCells: p.card.length,
       hasBingo: p.hasBingo,
@@ -94,6 +95,11 @@ function getPublicState(room) {
       shuffledTotal: room.gameState.shuffledOrder.length,
       winners: room.gameState.winners,
       bingoClaimant: room.gameState.bingoClaimant,
+      // Ordered song list for admin (shuffled order resolved to song labels)
+      orderedSongs: room.gameState.shuffledOrder.map((realIdx) => {
+        const s = room.songs[realIdx];
+        return s ? { id: s.id, label: s.label } : null;
+      }).filter(Boolean),
     },
     currentSong:
       room.gameState.currentSongIndex >= 0 &&
@@ -200,10 +206,18 @@ io.on("connection", (socket) => {
     setTimeout(() => {
       if (!rooms[room.roomCode]) return;
       if (rooms[room.roomCode].gameState.status === "waiting") return;
+
+      // Auto-reveal: add song to playedSongIds when it starts playing
+      if (!rooms[room.roomCode].gameState.playedSongIds.includes(song.id)) {
+        rooms[room.roomCode].gameState.playedSongIds.push(song.id);
+      }
+
       io.to(room.roomCode).emit("start-song", {
         song: { youtubeId: song.youtubeId, startSeconds: song.startSeconds, label: song.label, id: song.id },
         clipDuration: room.gameState.clipDuration,
       });
+      io.to(room.roomCode).emit("song-revealed", { songId: song.id, label: song.label });
+      io.to(room.roomCode).emit("state-update", getPublicState(rooms[room.roomCode]));
     }, cd * 1000);
   });
 
